@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Products</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        margin: 0;
+        padding: 0;
+        color: white;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: 50px auto;
+        background: #111827;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        color: #38bdf8;
+    }
+
+    form {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-bottom: 25px;
+    }
+
+    input {
+        padding: 10px;
+        border-radius: 8px;
+        border: none;
+        outline: none;
+        width: 150px;
+    }
+
+    button {
+        padding: 10px 15px;
+        background: #38bdf8;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    button:hover {
+        background: #0ea5e9;
+    }
+
+    .card {
+        background: #1f2937;
+        padding: 15px;
+        margin-bottom: 12px;
+        border-radius: 10px;
+        display: flex;
+        justify-content: space-between;
+        transition: 0.2s;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+        background: #273244;
+    }
+
+    .name {
+        font-weight: bold;
+    }
+
+    .price {
+        color: #22c55e;
+        font-weight: bold;
+    }
+
+    .empty {
+        text-align: center;
+        color: #9ca3af;
+        padding: 20px;
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: 20px;
+        color: #6b7280;
+        font-size: 13px;
+    }
+
+    a {
+        color: #38bdf8;
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        text-decoration: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1> Products Store</h1>
+
+    <form action="/products" method="GET">
+        <input type="number" name="min_price" placeholder="Min price">
+        <input type="number" name="max_price" placeholder="Max price">
+        <input type="number" name="limit" placeholder="Limit">
+        <input type="text" name="search" placeholder="Search">
+        <button type="submit">Filter</button>
+    </form>
+
+    {% if products %}
+        {% for p in products %}
+            <div class="card">
+                <div class="name">{{ p.name }}</div>
+                <div class="price">${{ p.price }}</div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <div class="empty">No products </div>
+    {% endif %}
+
+    <a href="/add-product">+ Add Product</a>
+
+    <div class="footer">
+        Flask + Jinja2 Products System
+    </div>
+
+</div>
+
+</body>
+</html>
