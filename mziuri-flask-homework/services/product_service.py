@@ -1,29 +1,56 @@
-def validate_product(data):
-    errors = []
+from models import Product
+from extensions import db
 
-    name = data.get("name")
-    price = data.get("price")
+class ProductService:
 
-    if not name or len(name) < 2:
-        errors.append("Name must be at least 2 characters")
+    @staticmethod
+    def get_all_products(filters):
+        query = Product.query
 
-    if price is None:
-        errors.append("Price is required")
-    elif not isinstance(price, (int, float)):
-        errors.append("Price must be number")
-    elif price < 0:
-        errors.append("Price cannot be negative")
+        search = filters.get("search")
+        min_price = filters.get("min_price")
+        max_price = filters.get("max_price")
+        limit = filters.get("limit")
 
-    return errors
+        if search:
+            query = query.filter(Product.name.ilike(f"%{search}%"))
+
+        if min_price is not None:
+            query = query.filter(Product.price >= min_price)
+
+        if max_price is not None:
+            query = query.filter(Product.price <= max_price)
+
+        if limit:
+            query = query.limit(limit)
+
+        return query.all()
 
 
-def validate_filters(args):
-    errors = []
+    @staticmethod
+    def get_product_by_id(product_id):
+        return Product.query.get(product_id)
 
-    min_price = args.get("min_price")
-    max_price = args.get("max_price")
 
-    if min_price and max_price and float(min_price) > float(max_price):
-        errors.append("min_price cannot be greater than max_price")
+    @staticmethod
+    def add_product(data):
+        product = Product(
+            name=data["name"],
+            price=data["price"]
+        )
+        db.session.add(product)
+        db.session.commit()
+        return product
 
-    return errors
+    @staticmethod
+    def update_product(product, data):
+        product.name = data.get("name", product.name)
+        product.price = data.get("price", product.price)
+
+        db.session.commit()
+        return product
+
+    @staticmethod
+    def delete_product(product):
+        db.session.delete(product)
+        db.session.commit()
