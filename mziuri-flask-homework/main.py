@@ -13,14 +13,18 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db.init_app(app)
 migrate.init_app(app, db)
 
-products = [
-    {"id": 1, "name": "Laptop", "price": 1200},
-    {"id": 2, "name": "Phone", "price": 800},
-    {"id": 3, "name": "Tablet", "price": 600},
-]
+
 
 @app.route("/")
 def index():
+    filters = {
+        "search": request.args.get("search"),
+        "min_price": request.args.get("min_price", type=float),
+        "max_price": request.args.get("max_price", type=float),
+        "limit": request.args.get("limit", type=int),
+    }
+
+    products = ProductService.get_all_products(filters)
     return render_template("index.html", products=products)
 
 
@@ -41,7 +45,10 @@ def get_products(search=None):
 
     result = ProductService.get_all_products(filters)
 
-    return {"success": True, "data": result}, 200
+    return {
+        "success": True,
+        "data": [product.to_dict() for product in result]
+    }, 200
 
 
 @app.route("/api/products/id/<int:product_id>")
@@ -51,7 +58,7 @@ def get_by_id(product_id):
     if not product:
         return {"success": False, "message": "Not found"}, 404
 
-    return {"success": True, "data": product}, 200
+    return {"success": True, "data": product.to_dict()}, 200
 
 
 @app.route("/add-product", methods=["GET", "POST"])
@@ -74,25 +81,6 @@ def add_product():
 
     return redirect(url_for("index"))
 
-@app.route("/add-product", methods=["GET", "POST"])
-def add_product():
-
-    if request.method == "GET":
-        return render_template("add_product.html")
-
-    data = {
-        "name": request.form.get("name"),
-        "price": request.form.get("price", type=float)
-    }
-
-    errors = validate_product(data)
-
-    if errors:
-        return render_template("add_product.html", error=errors)
-
-    ProductService.add_product(data)
-
-    return redirect(url_for("index"))
 
 
 @app.route("/api/products/<int:product_id>", methods=["PUT"])
@@ -123,7 +111,7 @@ def patch_product(product_id):
 
     updated = ProductService.update_product(product, data)
 
-    return {"success": True, "data": product, "message": "Patched"}, 200
+    return {"success": True, "data": product.to_dict(), "message": "Patched"}, 200
 
 
 

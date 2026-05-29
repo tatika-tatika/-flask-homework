@@ -1,5 +1,5 @@
-from models import Product
-from extensions import db
+from services.models import Product
+from services.extensions import db, migrate
 
 class ProductService:
 
